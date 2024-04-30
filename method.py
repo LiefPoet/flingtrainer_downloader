@@ -66,7 +66,9 @@ def download_file(url, local_path):
     headers['Accept-Language'] = 'zh-CN,zh;q=0.9'
     headers['Referer'] = 'https://www.baidu.com/'
     try:
+        print("下载链接原始地址：",url)
         res = requests.get(url,headers=headers)
+        print("下载链接：",res)
         #获取文件名称
         fileName = res.url.split("/")[-1]
         #res.raise_for_status()
@@ -89,26 +91,26 @@ def zip_decompress(file_path, new_path,gameMenuName):
  """
     if file_path.split('.')[-1] == 'zip':
         #利用游戏名字创建文件夹
-        gameMenu_folder(gameMenuName)
+        gameMenu_folder(gameMenuName,newpath=new_path)
         z = zipfile.ZipFile(file_path, 'r')
         #将解压地址改为新创建文件夹内
-        newName_path = new_path + f"{gameMenuName}/"
+        newName_path = new_path + f"/{gameMenuName}/"
         z.extractall(path=newName_path)
     else:
         #rarfile解压
         #重新定义unrar文件位置
         rarfile.UNRAR_TOOL = frozen_dir.app_path()+"/Set/unrar"
         # 利用游戏名字创建文件夹
-        gameMenu_folder(gameMenuName)
+        gameMenu_folder(gameMenuName,newpath=new_path)
         #除开名字跟zipfile一样的操作
         z = rarfile.RarFile(file_path, 'r')
         # 将解压地址改为新创建文件夹内
-        rarnewName_path = new_path + f"{gameMenuName}/"
+        rarnewName_path = new_path + f"/{gameMenuName}/"
         z.extractall(path=rarnewName_path)
 
 # 本地根目录创建文件夹
-def gameMenu_folder(gameName):
-    save_path = frozen_dir.app_path() + fr"/Download/{gameName}/"
+def gameMenu_folder(gameName,newpath):
+    save_path = newpath + fr"/{gameName}/"
     if os.path.exists(save_path):
         print(f'文件{save_path}存在')
     else:

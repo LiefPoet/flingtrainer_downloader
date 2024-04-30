@@ -2,9 +2,12 @@ import base64
 import os
 
 import tkinter as tk
-from tkinter.messagebox import *
+
 from tkinter import filedialog
+from tkinter import ttk
 import threading
+from tkinter.messagebox import showinfo
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -81,6 +84,8 @@ def ALL_Window():
     # 下载用线程池
     def download_lock():
         # 执行一些耗时操作
+        # 锁定按钮
+        download_Button.state(['disabled'])
         st = Srarch_txt.get()
         # 将搜索栏内容扔到解析去
         gameURl = method.Srarch_GameURl(st)
@@ -102,11 +107,17 @@ def ALL_Window():
         #获取对应修改器第一位链接
         find_gameMenuUrl = soup.find_all('a', class_ = "attachment-link" ,target="_self")[0]
         gameMenu_URL = find_gameMenuUrl['href']
-        print(gameMenu_URL)
+        print("对应修改器第一位链接:",gameMenu_URL)
         #创建本地下载文件夹
         download_folder()
         #下载程序
-        #
+        ################
+        #去除文件夹不能存在的特殊字符
+        name = game_Name
+        sets = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+        for char in name:
+            if char in sets:
+                name = name.replace(char, '')
         #下载地址
         path = download_path_Read()+'/'
         #调用下载
@@ -118,14 +129,17 @@ def ALL_Window():
         package_Name = res.url.split("/")[-1]
         # 下载压缩包地址
         package_path = path+package_Name
-        print(package_path)
+        print("下载压缩包地址:",package_path)
+        print("特殊字符改：",name)
         #执行解压缩
-        method.zip_decompress(package_path,path,game_Name)
+        method.zip_decompress(package_path,path,name)
         #删除原压缩包
         if os.path.exists(package_path):  # 检查文件是否存在
             os.remove(package_path)
         #下载完成弹窗
         showinfo(title='下载进度', message ='下载已完成，自动解压并删除压缩包')
+        # 解锁按钮
+        download_Button.state(['!disabled'])
 
     # 执行下载线程池
     def download_Game():
@@ -136,7 +150,7 @@ def ALL_Window():
 
 
     # 下载按钮
-    download_Button = tk.Button(text='点击下载',command=download_Game)
+    download_Button = ttk.Button(text='点击下载',command=download_Game)
     download_Button.place(x=290, y=120, width=90, height=40, anchor='nw')
 
 
