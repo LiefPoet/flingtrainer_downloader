@@ -23,6 +23,11 @@ def Srarch_GameName(GameName):
     main_req = requests.request(url=main_url, headers=headers, method='GET')
     # 开始解析网站
     soup = BeautifulSoup(main_req.text, 'html.parser')
+    #查看是否有对应游戏
+    No_Game =soup.find('h1')
+    No_Game_Text = '0 Search results'
+    if No_Game_Text in No_Game.text:
+        return None
     # 获取全部对应标签内游戏名称
     find_mainRul = soup.find_all(rel="bookmark")
     for gameName in find_mainRul:

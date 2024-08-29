@@ -62,10 +62,15 @@ def ALL_Window():
         # 将搜索栏内容扔到解析去
         gamename = method.Srarch_GameName(st)
         allGameName = gamename
+        #检查是否有对应名称游戏
+        if allGameName != None :
+            for game in allGameName:
+                # 在末位依次添加列表元素
+                Gametxt.insert('end', game)
+        else:
+            # 无对应游戏弹窗
+            showinfo(title='搜索结果', message='未能查找到对应名称游戏 ！\n请检查名称或扩大范围搜索')
 
-        for game in allGameName:
-            # 在末位依次添加列表元素
-            Gametxt.insert('end', game)
     #执行搜索线程池
     def SrarchTxt():
         # 创建一个新线程
@@ -78,7 +83,7 @@ def ALL_Window():
     Srarch_Button.place(x=290, y=50, width=90, height=40, anchor='nw')
 
     # 游戏列表
-    Gametxt = tk.Listbox()
+    Gametxt = tk.Listbox(selectmode='SINGLE')
     Gametxt.place(x=40, y=120, width=230, height=300, anchor='nw')
 
     # 下载用线程池
