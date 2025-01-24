@@ -62,58 +62,67 @@ class App(customtkinter.CTk):
 
     # 搜索用线程池
     def Srarch_lock(self):
-        # 锁定按钮
-        self.Srarch_Button.configure(state="disabled")
-        # 清空字典
-        self.item_Button = {}
-        # 设置进度条
-        self.Srarch_ProgressBar.set(0)
-        # 执行一些耗时操作
-        st = self.Srarch_Entry.get()
-        # 将搜索栏内容扔到解析去
-        game_Name_Img, game_Url, gameNameList = method.Srarch_GameName(st)
-        allGameName = game_Name_Img
-        allGameUrl = game_Url
+        try:
+            # 锁定按钮
+            self.Srarch_Button.configure(state="disabled")
+            # 清空字典
+            self.item_Button = {}
+            # 设置进度条
+            self.Srarch_ProgressBar.set(0)
+            # 执行一些耗时操作
+            st = self.Srarch_Entry.get()
+            # 将搜索栏内容扔到解析去
+            game_Name_Img, game_Url, gameNameList = method.Srarch_GameName(st)
+            allGameName = game_Name_Img
+            allGameUrl = game_Url
+            print('allGameName:', allGameName)
 
-        # 检查是否有对应名称游戏
-        if allGameName != None:
-            num = 0
-            # 进度条计数器
-            ProgressBar_num = float(1 / len(allGameName))
-            ProgressBar_num_2 = float(1 / len(allGameName))
-            for game in allGameName:
-                game_Img_Url = allGameName.setdefault(game)
-                # print(len(allGameName))
-                # 请求头
-                headers = {
-                    "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-                }
-                headers['Accept-Language'] = 'zh-CN,zh;q=0.9'
-                headers['Referer'] = 'https://www.baidu.com/'
-                # 显示图片
-                my_image = customtkinter.CTkImage(
-                    light_image=Image.open(requests.get(game_Img_Url, headers=headers, stream=True).raw),
-                    size=(50, 50))
-                # 创建对应按钮
-                Gameurl = allGameUrl.setdefault(game)
-                self.item_Button[game] = customtkinter.CTkButton(self.GameList_frame, image=my_image, text=game,
-                                                                 width=500, anchor='nw',
-                                                                 command=lambda n=game, gurl=Gameurl: threading.Thread(
-                                                                     target=self.download_Trainer, args=(n, gurl),
-                                                                     daemon=True).start())
-                self.item_Button[game].grid(row=num, column=0, padx=10, pady=(10, 0), sticky="sw")
-                print('游戏名：', game)
-                print('游戏链接：', allGameUrl.setdefault(game))
-                num += 1
-                self.Srarch_ProgressBar.set(ProgressBar_num)
-                ProgressBar_num += ProgressBar_num_2
-            # 解锁按钮
-            self.Srarch_Button.configure(state="normal")
-        else:
+            # 检查是否有对应名称游戏
+            if allGameName != None:
+                num = 0
+                # 进度条计数器
+                ProgressBar_num = float(1 / len(allGameName))
+                ProgressBar_num_2 = float(1 / len(allGameName))
+                for game in allGameName:
+                    game_Img_Url = allGameName.setdefault(game)
+                    # print(len(allGameName))
+                    # 请求头
+                    headers = {
+                        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+                    }
+                    headers['Accept-Language'] = 'zh-CN,zh;q=0.9'
+                    headers['Referer'] = 'https://www.baidu.com/'
+                    # 显示图片
+                    my_image = customtkinter.CTkImage(
+                        light_image=Image.open(requests.get(game_Img_Url, headers=headers, stream=True).raw),
+                        size=(50, 50))
+                    # 创建对应按钮
+                    Gameurl = allGameUrl.setdefault(game)
+                    self.item_Button[game] = customtkinter.CTkButton(self.GameList_frame, image=my_image, text=game,
+                                                                     width=500, anchor='nw',
+                                                                     command=lambda n=game,
+                                                                                    gurl=Gameurl: threading.Thread(
+                                                                         target=self.download_Trainer, args=(n, gurl),
+                                                                         daemon=True).start())
+                    self.item_Button[game].grid(row=num, column=0, padx=10, pady=(10, 0), sticky="sw")
+                    print('游戏名：', game)
+                    print('游戏链接：', allGameUrl.setdefault(game))
+                    num += 1
+                    self.Srarch_ProgressBar.set(ProgressBar_num)
+                    ProgressBar_num += ProgressBar_num_2
+                # 解锁按钮
+                self.Srarch_Button.configure(state="normal")
+            else:
+                # 无对应游戏弹窗
+                showinfo(title='搜索结果', message='未能查找到对应名称游戏 ！\n请检查名称或扩大范围搜索')
+                # 解锁按钮
+                self.Srarch_Button.configure(state="normal")
+        except Exception as e:
             # 无对应游戏弹窗
-            showinfo(title='搜索结果', message='未能查找到对应名称游戏 ！\n请检查名称或扩大范围搜索')
+            showinfo(title='搜索结果', message=f'未能查找到对应名称游戏 ！\n请检查名称或扩大范围搜索\n{e}')
             # 解锁按钮
             self.Srarch_Button.configure(state="normal")
+
 
     # 执行搜索线程池
     def SrarchTxt(self):
