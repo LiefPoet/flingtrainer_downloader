@@ -4,9 +4,6 @@ import rarfile
 import requests
 from bs4 import BeautifulSoup
 
-import frozen_dir
-
-
 #获取对应游戏名称
 def Srarch_GameName(GameName):
     #游戏名称列表
@@ -31,27 +28,29 @@ def Srarch_GameName(GameName):
     No_Game_Text = '0 Search results'
     if No_Game_Text in No_Game.text:
         return None
-    # 获取全部对应标签内游戏名称
-    find_mainRul = soup.find_all(rel="bookmark")
-    #获取图片
-    find_mainimg = soup.find_all('img',width="200",height="200")
+    else:
+        # 获取全部对应标签内游戏名称
+        find_mainRul = soup.find_all(rel="bookmark")
+        # 获取图片
+        find_mainimg = soup.find_all('img', width="200", height="200")
 
-    for link in find_mainimg:
-        gameImgList.append(link['src'])
-    for gameName in find_mainRul:
-        a = gameName.text
-        gameNameList.append(a)
-    #获取游戏链接
-    for gameURL in find_mainRul:
-        a = gameURL['href']
-        gameURLList.append(a)
-    #合并字典
-    game_List =dict(zip(gameNameList,gameImgList))
-    #修改器对应网址
-    gameRul_List = dict(zip(gameNameList,gameURLList))
-    #print(game_List)
-    #返回游戏信息
-    return game_List,gameRul_List,gameNameList
+        for link in find_mainimg:
+            gameImgList.append(link['src'])
+        for gameName in find_mainRul:
+            a = gameName.text
+            gameNameList.append(a)
+        # 获取游戏链接
+        for gameURL in find_mainRul:
+            a = gameURL['href']
+            gameURLList.append(a)
+        # 合并字典
+        game_List = dict(zip(gameNameList, gameImgList))
+        # 修改器对应网址
+        gameRul_List = dict(zip(gameNameList, gameURLList))
+        print("图片地址:",game_List)
+        # 返回游戏信息
+        return game_List, gameRul_List, gameNameList
+
 
 #下载文件
 def download_file(url, local_path,game_name):
@@ -112,6 +111,7 @@ def download_file(url, local_path,game_name):
         #res.raise_for_status()
         print("ok")
         print(game_name)
+        print("file_path:->",file_path)
     except requests.exceptions.RequestException as e:
         print("no")
 
@@ -134,7 +134,8 @@ def zip_decompress(file_path, new_path,gameMenuName):
     elif file_path.split('.')[-1] == 'rar' :
         #rarfile解压
         #重新定义unrar文件位置
-        rarfile.UNRAR_TOOL = frozen_dir.app_path()+"/assets/unrar"
+        file_Path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets")
+        rarfile.UNRAR_TOOL = f"{file_Path}\\unrar"
         # 利用游戏名字创建文件夹
         gameMenu_folder(gameMenuName,newpath=new_path)
         #除开名字跟zipfile一样的操作
@@ -157,5 +158,19 @@ def gameMenu_folder(gameName,newpath):
     else:
         print(f'文件{save_path}不存在')
         os.mkdir(save_path)
+
+# 读取文件夹指定类型文件
+def find_files_with_suffix(folder_path, suffix):
+   '''
+
+   :param folder_path: 文件路径
+   :param suffix: 指定后缀名
+   :return: ？
+   '''
+   # 使用os.listdir获取文件夹中所有文件的路径
+   all_files = os.listdir(folder_path)
+   # 筛选出以指定后缀结尾的文件
+   filtered_files = [file for file in all_files if file.endswith(suffix)]
+   return filtered_files
 
 #download_file('https://flingtrainer.com/downloads/JxkH0y_ocORjmJnS_Z2DTA','D:\Python项目\FLYY_new/Download/')
