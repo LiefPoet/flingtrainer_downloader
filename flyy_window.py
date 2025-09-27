@@ -35,7 +35,7 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
 
         self.Game_Name = []
-        self.OpenD = False
+        self.OpenD = "off"
         # 文件地址
         self.file_Path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets")
         # 图片地址
@@ -173,9 +173,10 @@ class App(customtkinter.CTk):
         # 删除按钮
         for dButton in self.List_Button:
             self.List_Button[dButton].destroy()
-            if self.OpenD:
-                self.delete_Lable.destroy()
-                self.OpenD = False
+        print(self.OpenD)
+        if self.OpenD == "on":
+            self.delete_Lable.destroy()
+            self.OpenD = "off"
         # 清空字典
         self.List_Button = {}
         numx = 0
@@ -230,7 +231,7 @@ class App(customtkinter.CTk):
     def delete_Trainer(self):
         self.delete_Lable = customtkinter.CTkLabel(self.TrainerList_frame, text="- - - - - 删除修改器模式 - - - - -")
         self.delete_Lable.grid(row=1, column=0, padx=5, pady=5, columnspan=3, sticky="nsew")
-        self.OpenD = True
+        self.OpenD = "on"
         # 删除按钮
         for dButton in self.List_Button:
             self.List_Button[dButton].destroy()
