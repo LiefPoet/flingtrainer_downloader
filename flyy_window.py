@@ -89,6 +89,7 @@ class App(customtkinter.CTk):
         # 修改器列表框架
         self.TrainerList_frame = customtkinter.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
         self.TrainerList_frame.grid_columnconfigure(0, minsize=140)
+        self.TrainerList_frame.grid_columnconfigure(0, weight=1)
         self.TrainerList_frame.grid_columnconfigure(1, weight=1)
 
         # ------------- 风灵月影下载相关 ---------------
@@ -138,6 +139,8 @@ class App(customtkinter.CTk):
         self.delete_Button = customtkinter.CTkButton(self.TrainerList_frame, text="删除修改器",
                                                      image=self.delete_image, command=self.delete_Trainer)
         self.delete_Button.grid(row=0, column=1, padx=5, pady=(10, 5), sticky="nsew")
+        self.placeholder_Label = customtkinter.CTkLabel(self.TrainerList_frame,text=" ",width=140)
+        self.placeholder_Label.grid(row=0, column=2, padx=5, pady=(10, 5), sticky="nsew")
 
     # 激活框架
     def select_frame_by_name(self, name):
@@ -171,11 +174,12 @@ class App(customtkinter.CTk):
     # ---------- 游戏修改器列表生成 -----------
     def create_GameList(self):
         # 删除按钮
+        self.select_frame_by_name('修改器列表')
         for dButton in self.List_Button:
             self.List_Button[dButton].destroy()
         print(self.OpenD)
         if self.OpenD == "on":
-            self.delete_Lable.destroy()
+            self.delete_Lable.configure(text=" ")
             self.OpenD = "off"
         # 清空字典
         self.List_Button = {}
@@ -218,7 +222,7 @@ class App(customtkinter.CTk):
                 del data[key]
                 # 保存修改后的JSON文件
                 with open(save_path, 'w') as ff:
-                    json.dump(data, ff)
+                    json.dump(data, ff,indent=2)
                 # 顺带手给文件夹也扬了
                 os.remove(TrainerPath.rsplit("/", 1)[0])
         return None
@@ -229,9 +233,11 @@ class App(customtkinter.CTk):
 
     # 删除模式
     def delete_Trainer(self):
-        self.delete_Lable = customtkinter.CTkLabel(self.TrainerList_frame, text="- - - - - 删除修改器模式 - - - - -")
-        self.delete_Lable.grid(row=1, column=0, padx=5, pady=5, columnspan=3, sticky="nsew")
-        self.OpenD = "on"
+        if self.OpenD == "off":
+            self.delete_Lable = customtkinter.CTkLabel(self.TrainerList_frame,
+                                                       text="- - - - - 删除修改器模式 - - - - -")
+            self.delete_Lable.grid(row=1, column=0, padx=5, pady=5, columnspan=3, sticky="nsew")
+            self.OpenD = "on"
         # 删除按钮
         for dButton in self.List_Button:
             self.List_Button[dButton].destroy()
@@ -280,6 +286,7 @@ class App(customtkinter.CTk):
             json.dump(data, ff, indent=2)
         # 顺带手给文件夹也扬了
         shutil.rmtree(DeletePath)
+        time.sleep(0.5)
         # 刷新界面
         self.delete_Trainer()
         return None
@@ -497,7 +504,7 @@ class App(customtkinter.CTk):
             data[str(Game_Name)]["ImgUrl"] = str(Img_Url)
             data[str(Game_Name)]["TrainerPath"] = str(Trainer_Path)
             with open(save_path, "w") as ff:
-                json.dump(data, ff)
+                json.dump(data, ff,indent=2)
             return None
         else:
             data[str(Game_Name)] = {
@@ -507,7 +514,7 @@ class App(customtkinter.CTk):
                 "TrainerPath": str(Trainer_Path)
             }
             with open(save_path, "w") as ff:
-                json.dump(data, ff)
+                json.dump(data, ff,indent=2)
             return None
 
     # ---- 下载图片 ----
