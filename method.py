@@ -85,27 +85,36 @@ def download_file(url, local_path,game_name):
 
         # 保存路径
         save_path = local_path
+        print("保存路径:->",save_path)
         os.makedirs(save_path, exist_ok=True)
         file_path = os.path.join(save_path+game_name, filename)
+        print("文件存储地址:->",file_path)
 
         # 判断能否解压
         if filename_extension == 'zip' or filename_extension == 'rar':
             # 下载文件
+            print(" --------- 进入下载文件 ----------")
             file_path_zip = os.path.join(save_path, filename)
             with open(file_path_zip, "wb") as file:
                 file.write(res.content)
             #解压程序
             zip_decompress(file_path=file_path_zip,new_path=local_path,gameMenuName=game_name)
+            print(" --------- 执行完解压程序 ----------")
             # 删除原压缩包
             package_File = content_disposition.split("filename=")[-1].strip("\"'")
             if os.path.exists(local_path+package_File):  # 检查文件是否存在
                 os.remove(local_path+package_File)
+            print(" --------- 执行完删除原压缩包 ----------")
         else:
             # 创建对应文件夹
             gameMenu_folder(gameName=game_name, newpath=local_path)
+            print(" --------- 创建完对应文件夹 ----------")
+            exe_File_path = local_path + game_name
             # 下载文件
-            with open(file_path+'/', "wb") as file:
+            # 很好，这辈子没想到是因为多加了个 / 导致报错
+            with open(file_path, "wb") as file:
                 file.write(res.content)
+            print(" --------- 下载完对应文件 ----------")
         #获取文件名称
         #fileName = res.url.split("/")[-1]
         #res.raise_for_status()
