@@ -20,7 +20,7 @@ import method
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.title("风灵月影下载器")
+        self.title("风灵月影下载器[1.4]")
         ww = 650
         wh = 480
         # self.geometry("400x500")
@@ -292,11 +292,28 @@ class App(customtkinter.CTk):
         return None
 
     # ---------- 下载器 -------------
+
+    # ---- 清空框架 ----
+    def clear_frame(self,frame):
+        """安全清空CustomTkinter frame"""
+        try:
+            # 获取所有子组件
+            children = frame.winfo_children()
+
+            # 销毁组件（不需要手动解绑，destroy()会自动处理）
+            for child in children:
+                child.destroy()
+
+        except Exception as e:
+            print(f"清理frame时出现错误: {e}")
+
     # 搜索用线程池
     def Srarch_lock(self):
         try:
             # 锁定按钮
             self.Srarch_Button.configure(state="disabled")
+            # 清空
+            self.clear_frame(self.GameList_frame)
             # 清空字典
             self.item_Button = {}
             # 设置进度条
@@ -396,7 +413,7 @@ class App(customtkinter.CTk):
                 if char in sets:
                     name = name.replace(char, '')
             # 下载地址
-            path = self.download_path_Read() + '/'
+            path = self.download_path_Read()
             # 调用下载
             method.download_file(gameMenu_URL, path, game_name=name)
             print("特殊字符改：", name)
@@ -409,8 +426,10 @@ class App(customtkinter.CTk):
             self.Img_Path(Img_url=game_Img, File_name=header_image_path)
             # ---- 保存修改器本地地址 ----
             filePath = f"{path}{name}/"
+            print("文件夹位置:",filePath)
             TrainerPath = method.find_files_with_suffix(folder_path=filePath, suffix=".exe")
             Trainer_File_Path = filePath + TrainerPath[0]
+            print("文件具体写入路径:->",Trainer_File_Path)
             # ---- 写入信息 ----
             self.Info_Json_append(Game_Name=game_Name_split, Img_Path=header_image_path, Trainer_Path=Trainer_File_Path,
                                   Img_Url=game_Img)
@@ -422,7 +441,9 @@ class App(customtkinter.CTk):
 
     # 读取保存地址信息
     def download_path_Read(self):
-        DW_path_Read = f'{self.file_Path}\\Download_path.txt'
+        DW_path_Read = f'{self.file_Path}/Download_path.txt'
+        print("保存地址信息:",DW_path_Read)
+        print("打包前后的地址:->",frozen_dir.app_path())
         with open(DW_path_Read, "r") as file_txt_Read:
             txt_Read = file_txt_Read.read()
             # 判断是否有地址
@@ -448,7 +469,7 @@ class App(customtkinter.CTk):
     # 储存下载位置信息
     def download_path_Txt_lock(self):
         # 下载路径保存位置(反正都建立文件夹了，总得多点啥玩意)
-        DW_path = f'{self.file_Path}\\Download_path.txt'
+        DW_path = f'{self.file_Path}/Download_path.txt'
         path = open(DW_path, "w")
         path.close()
         # 开始写入路径信息
@@ -470,7 +491,7 @@ class App(customtkinter.CTk):
 
     # ---- 初始化储存修改器信息 ----
     def Trainer_Info_Json(self):
-        save_path = fr"{self.file_Path}\\Trainer_Info.json"
+        save_path = fr"{self.file_Path}/Trainer_Info.json"
         if os.path.exists(save_path):
             print(f'文件{save_path}存在')
             return None
@@ -491,7 +512,7 @@ class App(customtkinter.CTk):
         :param Img_Url: 图片网络地址
         :return: 蛋
         '''
-        save_path = fr"{self.file_Path}\\Trainer_Info.json"
+        save_path = fr"{self.file_Path}/Trainer_Info.json"
         with open(save_path, "r") as f:
             data = json.load(f)
         # 判断是否已拥有游戏信息
