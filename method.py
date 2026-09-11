@@ -53,24 +53,42 @@ def Srarch_GameName(GameName):
 
 
 #下载文件
-def download_file(url, local_path,game_name):
+def download_file(url, local_path,game_name,original_GameURL):
     '''
 
     :param url:
     :param local_path:
     :return:
     '''
-
-    # 请求头
-    headers = {
-        "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-    }
-    headers['Accept-Language'] = 'zh-CN,zh;q=0.9'
-    headers['Referer'] = 'https://www.baidu.com/'
+    print("应该是原始页面链接->",original_GameURL)
     try:
+        # 使用 Session 维持会话
+        session = requests.Session()
+        # 更完整的请求头
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
+            "Referer": str(original_GameURL),
+            "Connection": "keep-alive",
+            # 以下 Sec-* 头对通过 Cloudflare 检查很重要
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "cross-site",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        session.headers.update(headers)
         print("下载链接原始地址：",url)
-        res = requests.get(url,headers=headers)
-        print("下载链接：",res)
+        #res = requests.get(url,headers=headers)
+        res = session.get(url)
+        #res = scraper.get(url, stream=True, allow_redirects=True)
+        print("++++++++++++++++++++++++++++++++++++++++")
+        print("Content-Type:", res.headers.get("Content-Type"))
+        print("Content-Disposition:", res.headers.get("Content-Disposition"))
+        print("Content-Length:", res.headers.get("Content-Length"))
+        print("Content-Encoding:", res.headers.get("Content-Encoding"))
 
         # 判断有无名字
         content_disposition = res.headers.get("Content-Disposition")
@@ -87,9 +105,8 @@ def download_file(url, local_path,game_name):
         save_path = local_path
         print("保存路径:->",save_path)
         os.makedirs(save_path, exist_ok=True)
-        file_path = os.path.join(save_path+game_name, filename)
+        file_path = os.path.join(save_path,game_name, filename)
         print("文件存储地址:->",file_path)
-
         # 判断能否解压
         if filename_extension == 'zip' or filename_extension == 'rar':
             # 下载文件
@@ -109,10 +126,15 @@ def download_file(url, local_path,game_name):
             # 创建对应文件夹
             gameMenu_folder(gameName=game_name, newpath=local_path)
             print(" --------- 创建完对应文件夹 ----------")
-            exe_File_path = local_path + game_name
+            exe_save_path = os.path.join(local_path, game_name)
+            print(exe_save_path)
+            exe_filename = game_name + ".exe"
+            print(exe_filename)
+            exe_File_path = os.path.join(exe_save_path, exe_filename)
+            print("+++",exe_File_path)
             # 下载文件
-            # 很好，这辈子没想到是因为多加了个 / 导致报错
-            with open(file_path, "wb") as file:
+            # 没想到有一天还要启用exe文件下载
+            with open(exe_File_path, "wb") as file:
                 file.write(res.content)
             print(" --------- 下载完对应文件 ----------")
         #获取文件名称
@@ -122,7 +144,7 @@ def download_file(url, local_path,game_name):
         print(game_name)
         print("file_path:->",file_path)
     except requests.exceptions.RequestException as e:
-        print("no")
+        print("请求异常:", repr(e))
 
 
 
