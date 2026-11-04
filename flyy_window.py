@@ -15,12 +15,13 @@ from PIL import Image, ImageTk
 
 import frozen_dir
 import method
+from trainer_meta import extract
 
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.title("风灵月影下载器[1.4]")
+        self.title("风灵月影下载器[1.6]")
         ww = 650
         wh = 480
         # self.geometry("400x500")
@@ -60,7 +61,7 @@ class App(customtkinter.CTk):
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
         self.navigation_frame.grid_rowconfigure(4, weight=1)
         # 游戏列表
-        self.suggest_Label = customtkinter.CTkLabel(self.navigation_frame, text="免费软件\n买的你就上当咯")
+        self.suggest_Label = customtkinter.CTkLabel(self.navigation_frame, text="免费软件")
         self.suggest_Label.grid(row=1, column=0, padx=20, pady=20)
         # 标题
         self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  选择菜单",
@@ -391,7 +392,7 @@ class App(customtkinter.CTk):
 
             # 请求头
             headers = {
-                "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+                "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36'
             }
             headers['Accept-Language'] = 'zh-CN,zh;q=0.9'
             headers['Referer'] = 'https://www.baidu.com/'
@@ -415,7 +416,7 @@ class App(customtkinter.CTk):
             # 下载地址
             path = self.download_path_Read()
             # 调用下载
-            method.download_file(gameMenu_URL, path, game_name=name)
+            method.download_file(gameMenu_URL, path, game_name=name,original_GameURL=gameMenu)
             print("特殊字符改：", name)
             # ---- 将基础格式和信息写入json ----
             # ---- 保存对应游戏封面 ----
@@ -431,8 +432,19 @@ class App(customtkinter.CTk):
             Trainer_File_Path = filePath + TrainerPath[0]
             print("文件具体写入路径:->",Trainer_File_Path)
             # ---- 写入信息 ----
-            self.Info_Json_append(Game_Name=game_Name_split, Img_Path=header_image_path, Trainer_Path=Trainer_File_Path,
-                                  Img_Url=game_Img)
+            # 获取修改器中文名称
+            Game_Cn_Name = extract(Trainer_File_Path)
+            print(Game_Cn_Name,"游戏全部名称")
+            # 如果获取到简体中文，就写入简中名称，否则就英文
+            if Game_Cn_Name["cn"]:
+                Cn_Name = Game_Cn_Name["cn"]
+                self.Info_Json_append(Game_Name=Cn_Name, Img_Path=header_image_path,
+                                      Trainer_Path=Trainer_File_Path,
+                                      Img_Url=game_Img)
+            else:
+            # 写入路径记录文件
+                self.Info_Json_append(Game_Name=game_Name_split, Img_Path=header_image_path, Trainer_Path=Trainer_File_Path,
+                                    Img_Url=game_Img)
             # 下载完成弹窗
             showinfo(title='下载进度', message='下载已完成，自动解压并删除压缩包')
         except Exception as e:
